@@ -1,2 +1,2 @@
-# portfolio
-This is my personal portfolio website that show my case studies and projects that I have done.
+# Abayesu Mugisha's Portfolio
+Full-stack developer and UI/UX designer. Explore my projects at https://mugishasimple.github.io.
