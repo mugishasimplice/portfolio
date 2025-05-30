@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portfolio of Abayesu Mugisha Simplice D Alliance, Full-Stack Developer & UI/UX Designer">
+    <meta name="keywords" content="full-stack developer, UI/UX designer, web development, AI solutions">
+    <title>Abayesu Mugisha Simplice D Alliance - Portfolio</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="sticky">
+            <div class="logo">AMSD</div>
+            <div class="hamburger">☰</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#briefing">Why Hire Me</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#portfolio">Portfolio</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><button id="theme-toggle">🌙</button></li>
+                <li><button id="motion-toggle">Reduce Motion</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="home" class="hero parallax">
+        <div id="three-canvas"></div>
+        <h1>Hi, I’m Abayesu</h1>
+        <p class="typing">Full-Stack Developer & UI/UX Innovator</p>
+        <a href="#portfolio" class="btn pulse">View My Work</a>
+    </section>
+
+    <section id="briefing" class="section fade-in">
+        <h2>Why Hire Me?</h2>
+        <p>I’m a full-stack developer and UI/UX designer skilled in React, Java, JavaScript, C, C++, Python, and PHP. I craft scalable web applications and AI-driven solutions, like chatbots powered by Hugging Face Transformers, with pixel-perfect, user-centric designs. My projects, such as a responsive currency converter and an AI chatbot, demonstrate my ability to deliver innovative, high-quality solutions tailored to your needs. Contact me at <a href="mailto:networkcouf@gmail.com">networkcouf@gmail.com</a> to discuss your project, payable via MTN Mobile Money or Binance P2P.</p>
+    </section>
+
+    <section id="about" class="section fade-in">
+        <h2>About Me</h2>
+        <div class="about-grid">
+            <div class="about-image">
+                <img src="images/avatar.png" alt="Abayesu Mugisha">
+            </div>
+            <div class="about-text">
+                <p>I’m passionate about building dynamic web applications and intelligent AI systems. With expertise in multiple programming languages and a keen eye for UI/UX design, I create seamless, visually stunning experiences that drive engagement. My journey includes developing projects like an AI chatbot and a media player, showcasing my commitment to innovation and quality.</p>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <span>2023</span>
+                        <p>Mastered full-stack development with React and Python.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span>2024</span>
+                        <p>Launched AMSD Chatnova, an AI chatbot project.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span>2025</span>
+                        <p>Delivering freelance web and AI solutions globally.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="portfolio" class="section fade-in">
+        <h2>My Portfolio</h2>
+        <div class="filter-buttons">
+            <button data-filter="all">All</button>
+            <button data-filter="web">Web Design</button>
+            <button data-filter="ai">AI Apps</button>
+        </div>
+        <div class="slideshow">
+            <div class="slides">
+                <div class="slide" data-category="web">
+                    <img src="images/currency_convetor.png" alt="Currency Converter">
+                    <div class="slide-info">
+                        <h3>Currency Converter</h3>
+                        <p>A responsive web app with a sleek UI.</p>
+                        <a href="#modal1">View Case Study</a>
+                    </div>
+                </div>
+                <div class="slide" data-category="web">
+                    <img src="images/piano.png" alt="Piano">
+                    <div class="slide-info">
+                        <h3>Piano</h3>
+                        <p>An interactive music app with dynamic audio.</p>
+                        <a href="#modal2">View Case Study</a>
+                    </div>
+                </div>
+                <div class="slide" data-category="ai">
+                    <img src="images/chatnova_ai.png" alt="AMSD Chatnova">
+                    <div class="slide-info">
+                        <h3>AMSD Chatnova</h3>
+                        <p>An AI-powered chatbot with a static demo.</p>
+                        <a href="#modal5">View Case Study</a>
+                    </div>
+                </div>
+            </div>
+            <button class="prev">❮</button>
+            <button class="next">❯</button>
+        </div>
+        <div class="project-grid">
+            <div class="project-card" data-category="web" data-modal="modal1">
+                <div class="card-inner">
+                    <img src="images/currency_convetor.png" alt="Currency Converter">
+                    <h3>Currency Converter</h3>
+                </div>
+            </div>
+            <div class="project-card" data-category="web" data-modal="modal2">
+                <div class="card-inner">
+                    <img src="images/piano.png" alt="Piano">
+                    <h3>Piano</h3>
+                </div>
+            </div>
+            <div class="project-card" data-category="web" data-modal="modal3">
+                <div class="card-inner">
+                    <img src="images/backgroundremoval.png" alt="Background Removal">
+                    <h3>Background Removal Editor</h3>
+                </div>
+            </div>
+            <div class="project-card" data-category="web" data-modal="modal4">
+                <div class="card-inner">
+                    <img src="images/media.png" alt="Media Player">
+                    <h3>Media Player</h3>
+                </div>
+            </div>
+            <div class="project-card" data-category="ai" data-modal="modal5">
+                <div class="card-inner">
+                    <img src="images/chatnova_ai.png" alt="AMSD Chatnova">
+                    <h3>AMSD Nova AI</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section fade-in">
+        <h2>Contact Me</h2>
+        <div class="contact-grid">
+            <div class="contact-form">
+                <p>Let’s collaborate! Reach me at <a href="mailto:networkcouf@gmail.com">networkcouf@gmail.com</a>.</p>
+                <p>Mobile/WhatsApp:+250793122136</p>
+                <p>Payments via MTN Mobile Money or Binance P2P.</p>
+            </div>
+            <div class="contact-links">
+                <a href="https://github.com/mugishasimplice" target="_blank">GitHub</a>
+                <a href="https://linkedin.com/in/mugisha-simplice-72a490333" target="_blank">LinkedIn</a>
+                
+            </div>
+        </div>
+    </section>
+
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h3>Currency Converter</h3>
+            <img src="images/currency_convetor.png" alt="Currency Converter">
+            <p><strong>Problem:</strong> Users needed a fast, intuitive tool for currency conversion.<br>
+               <strong>Solution:</strong> Built a responsive web app with HTML, CSS, and JavaScript, integrating ExchangeRate-API.<br>
+               <strong>Impact:</strong> Delivered a seamless, accessible tool with local storage for user preferences.</p>
+            <a href="projects/currency-convetor.html">View Demo</a>
+            <a href="https://github.com/networkcouf/currency-converter">View Code</a>
+        </div>
+    </div>
+    <div id="modal2" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h3>Piano</h3>
+            <img src="images/piano.png" alt="Piano">
+            <p><strong>Problem:</strong> Lack of engaging, interactive music apps.<br>
+               <strong>Solution:</strong> Developed a JavaScript-driven piano with a modern CSS UI.<br>
+               <strong>Impact:</strong> Created a fun, cross-device experience for music enthusiasts.</p>
+            <a href="projects/piano.html">View Demo</a>
+        </div>
+    </div>
+    <div id="modal3" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h3>Background Removal Editor</h3>
+            <img src="images/background_removal.png" alt="Background Removal">
+            <p><strong>Problem:</strong> Complex tools for background removal.<br>
+               <strong>Solution:</strong> Built a JavaScript Canvas-based editor with a simple UI.<br>
+               <strong>Impact:</strong> Provided an accessible, efficient tool for image editing.</p>
+            <a href="projects/background-removal/index.html">View Demo</a>
+        </div>
+    </div>
+    <div id="modal4" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h3>Media Player</h3>
+            <img src="images/media.png" alt="Media Player">
+            <p><strong>Problem:</strong> Need for a versatile media player.<br>
+               <strong>Solution:</strong> Created a cross-device player with HTML, CSS, and JavaScript.<br>
+               <strong>Impact:</strong> Delivered a polished, user-friendly multimedia experience.</p>
+            <a href="projects/advancedmedia.html">View Demo</a>
+        </div>
+    </div>
+    <div id="modal5" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h3>AMSD Chatnova</h3>
+            <img src="images/chatnova_ai.png" alt="AMSD Chatnova AI">
+            <p><strong>Problem:</strong> Demand for intelligent chat solutions.<br>
+               <strong>Solution:</strong> Developed an AI chatbot with Python and a static demo.<br>
+               <strong>Impact:</strong> Showcased AI expertise with a client-ready interface.</p>
+            <a href="https://github.com/networkcouf/chatnova">View Code</a>
+        </div>
+    </div>
+
+    <button class="back-to-top">↑</button>
+    <script src="js/script.js"></script>
+</body>
+</html>

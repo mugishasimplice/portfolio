@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMSD Music Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6b46c1, #d53f8c);
+            min-height: 100vh;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background 0.5s ease;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            position: fixed;
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            padding: 10px 0;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .sidebar ul li:hover {
+            color: #f6ad55;
+        }
+
+        .content {
+            margin-left: 270px;
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background: #000;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .now-playing {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .now-playing div {
+            width: 100px;
+            height: 100px;
+            background: #fff;
+            margin-right: 20px;
+            border-radius: 5px;
+        }
+
+        .now-playing .details p {
+            margin: 5px 0;
+        }
+
+        .download-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .download-section input[type="text"] {
+            width: calc(100% - 120px);
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            margin-right: 10px;
+        }
+
+        .download-section button {
+            padding: 10px 20px;
+            background: #f6ad55;
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .download-section button:hover {
+            background: #e69540;
+        }
+
+        .download-section p {
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .download-section a {
+            color: #f6ad55;
+            text-decoration: none;
+        }
+
+        .download-section a:hover {
+            text-decoration: underline;
+        }
+
+        .recommendations, .discover, .playlists, .friends {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .recommendations ul, .discover ul, .playlists ul, .friends ul {
+            list-style: none;
+        }
+
+        .recommendations li, .discover li, .playlists li, .friends li {
+            padding: 10px 0;
+        }
+
+        .playlist {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .playlist-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
+            animation: slideUp 0.5s ease backwards;
+        }
+
+        .playlist-item:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .playlist-item.active {
+            background: #f6ad55;
+            color: #000;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 0;
+            width: calc(100% - 270px);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.3s ease;
+        }
+
+        .controls.hidden {
+            transform: translateY(100%);
+        }
+
+        .progress-container {
+            flex: 1;
+            margin: 0 10px;
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: #f6ad55;
+            transition: width 0.1s linear;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px 10px;
+            transition: color 0.3s ease;
+        }
+
+        .control-btn:hover {
+            color: #f6ad55;
+        }
+
+        .speed-control select {
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .drop-zone {
+            border: 2px dashed #f6ad55;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .drop-zone.dragover {
+            background: rgba(246, 173, 85, 0.2);
+        }
+
+        .audio-visualizer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: flex-end;
+            padding: 10px;
+            display: none;
+        }
+
+        .visualizer-bar {
+            width: 5px;
+            height: 10px;
+            background: #f6ad55;
+            margin: 0 2px;
+            transition: height 0.1s ease;
+        }
+
+        .equalizer-panel {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .equalizer-panel.open {
+            display: block;
+            opacity: 1;
+        }
+
+        .spinner {
+            border: 4px solid #f6ad55;
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    <div class="container">
+        <div class="sidebar">
+            <ul>
+                <li onclick="showSection('home')">Home</li>
+                <li onclick="showSection('discover')">Discover</li>
+                <li onclick="showSection('recommendations')">Recommendations</li>
+                <li onclick="showSection('songs')">Songs</li>
+                <li onclick="showSection('playlists')">Playlists</li>
+                <li onclick="showSection('friends')">Friends</li>
+                <li onclick="showSection('downloads')">Downloads</li>
+            </ul>
+        </div>
+        <div class="content">
+            <div id="home-section" class="content-section active">
+                <input type="text" placeholder="Search..." style="width: 100%; padding: 10px; margin-bottom: 20px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: #fff;">
+                <div class="video-container">
+                    <div class="spinner" id="spinner"></div>
+                    <div class="audio-visualizer" id="visualizer"></div>
+                </div>
+                <div class="now-playing" id="now-playing">
+                    <div style="background: #fff; width: 100px; height: 100px; margin-right: 20px;"></div>
+                    <div class="details">
+                        <h2></h2>
+                        <p></p>
+                        <p></p>
+                    </div>
+                </div>
+                <div class="download-section">
+                    <input type="text" id="video-url" placeholder="Paste YouTube or Social Media Video URL here...">
+                    <button onclick="downloadVideo()">Download</button>
+                    <p>Note: AMSD core team the Direct downloading is not supported in-browser due to restrictions. Click <a href="https://saveitfrom.com" target="_blank">here</a> to use SaveItFrom.com, a free online video downloader. Paste the URL there to download the video to your computer.</p>
+                </div>
+                <div class="playlist" id="playlist"></div>
+                <div class="drop-zone" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+                    Drag and drop video/audio files here
+                </div>
+            </div>
+            <div id="discover-section" class="content-section discover">
+                <h2>Discover</h2>
+                <p>Explore new music and videos! (Feature not available without a backend. Add local files to enjoy media.)</p>
+            </div>
+            <div id="recommendations-section" class="content-section recommendations">
+                <h2>Recommendations</h2>
+                <ul>
+                    <li>Sample Audio 1 - Genre: Pop</li>
+                    <li>Sample Video 1 - Genre: Music Video</li>
+                    <li>Sample Audio 2 - Genre: Rock</li>
+                </ul>
+                <p>Add local files to build your playlist!</p>
+            </div>
+            <div id="songs-section" class="content-section">
+                <h2>Songs</h2>
+                <div class="playlist" id="songs-playlist"></div>
+            </div>
+            <div id="playlists-section" class="content-section playlists">
+                <h2>Playlists</h2>
+                <ul id="playlists-list"></ul>
+                <button onclick="createPlaylist()" style="padding: 10px; background: #f6ad55; border: none; border-radius: 5px; color: #000; cursor: pointer;">Create New Playlist</button>
+            </div>
+            <div id="friends-section" class="content-section friends">
+                <h2>Friends</h2>
+                <p>Connect with friends to share music! (Feature not available without a backend.)</p>
+            </div>
+            <div id="downloads-section" class="content-section">
+                <h2>Downloads</h2>
+                <div class="download-section">
+                    <input type="text" id="video-url-downloads" placeholder="Paste YouTube or Social Media Video URL here...">
+                    <button onclick="downloadVideo()">Download</button>
+                    <p>Note: Direct downloading is not supported in-browser due to restrictions. Click <a href="https://saveitfrom.com" target="_blank">here</a> to use SaveItFrom.com, a free online video downloader. Paste the URL there to download the video to your computer.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="controls">
+        <div class="progress-container" onmousedown="seek(event)">
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+        </div>
+        <button class="control-btn" onclick="togglePlay()">▶️</button>
+        <button class="control-btn" onclick="toggleMute()">🔊</button>
+        <button class="control-btn" onclick="enterPiP()">🖼️</button>
+        <button class="control-btn" onclick="toggleEqualizer()">🎛️</button>
+        <div class="speed-control">
+            <select onchange="setPlaybackSpeed(this.value)">
+                <option value="0.5">0.5x</option>
+                <option value="1">1x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+            </select>
+        </div>
+    </div>
+    <div class="equalizer-panel" id="equalizer-panel">
+        <select onchange="applyEqualizer(this.value)">
+            <option value="flat">Flat</option>
+            <option value="pop">Pop</option>
+            <option value="rock">Rock</option>
+            <option value="jazz">Jazz</option>
+        </select>
+    </div>
+    <input type="file" id="file-input" accept="video/*,audio/*" multiple style="display: none;" onchange="addFiles(event)">
+    <input type="file" id="folder-input" webkitdirectory directory multiple style="display: none;" onchange="addFolderFiles(event)">
+
+    <script>
+        let mediaPlayer = document.createElement('video');
+        mediaPlayer.id = 'media-player';
+        document.querySelector('.video-container').appendChild(mediaPlayer);
+        let visualizer = document.getElementById('visualizer');
+        let playlist = document.getElementById('playlist');
+        let songsPlaylist = document.getElementById('songs-playlist');
+        let playlistsList = document.getElementById('playlists-list');
+        let progress = document.querySelector('.progress');
+        let controls = document.querySelector('.controls');
+        let spinner = document.getElementById('spinner');
+        let equalizerPanel = document.getElementById('equalizer-panel');
+        let nowPlaying = document.getElementById('now-playing');
+        let currentTheme = 'light';
+        let isPlaying = false;
+        let isMuted = false;
+        let mediaItems = JSON.parse(localStorage.getItem('playlist')) || [];
+        let playlists = JSON.parse(localStorage.getItem('playlists')) || [];
+        let currentMediaIndex = parseInt(localStorage.getItem('currentMediaIndex')) || 0;
+        let audioContext, analyser, gainNodes;
+
+        // Show specific section
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`${sectionId}-section`).classList.add('active');
+            if (sectionId === 'songs') renderSongsPlaylist();
+            if (sectionId === 'playlists') renderPlaylists();
+        }
+
+        // Initialize playlist
+        function renderPlaylist() {
+            playlist.innerHTML = '';
+            mediaItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `playlist-item ${index === currentMediaIndex ? 'active' : ''}`;
+                div.style.animationDelay = `${index * 0.1}s`;
+                div.innerHTML = `
+                    <div>${item.title}</div>
+                    <button onclick="removeMedia(${index})" style="background: none; border: none; color: #fff; cursor: pointer;">🗑️</button>
+                `;
+                div.onclick = () => playMedia(index);
+                div.ondragstart = (e) => e.dataTransfer.setData('index', index);
+                div.ondragover = (e) => e.preventDefault();
+                div.ondrop = (e) => {
+                    const fromIndex = e.dataTransfer.getData('index');
+                    const toIndex = index;
+                    [mediaItems[fromIndex], mediaItems[toIndex]] = [mediaItems[toIndex], mediaItems[fromIndex]];
+                    savePlaylist();
+                    renderPlaylist();
+                };
+                playlist.appendChild(div);
+            });
+        }
+
+        // Render songs playlist (only audio)
+        function renderSongsPlaylist() {
+            songsPlaylist.innerHTML = '';
+            const audioItems = mediaItems.filter(item => item.type === 'audio');
+            audioItems.forEach((item, index) => {
+                const globalIndex = mediaItems.findIndex(i => i.src === item.src);
+                const div = document.createElement('div');
+                div.className = `playlist-item ${globalIndex === currentMediaIndex ? 'active' : ''}`;
+                div.style.animationDelay = `${index * 0.1}s`;
+                div.innerHTML = `
+                    <div>${item.title}</div>
+                    <button onclick="removeMedia(${globalIndex})" style="background: none; border: none; color: #fff; cursor: pointer;">🗑️</button>
+                `;
+                div.onclick = () => playMedia(globalIndex);
+                songsPlaylist.appendChild(div);
+            });
+        }
+
+        // Render playlists
+        function renderPlaylists() {
+            playlistsList.innerHTML = '';
+            playlists.forEach((pl, index) => {
+                const li = document.createElement('li');
+                li.textContent = pl.name;
+                li.onclick = () => alert('Playlist viewing not fully implemented. Add media to the main playlist to play.');
+                playlistsList.appendChild(li);
+            });
+        }
+
+        // Create a new playlist
+        function createPlaylist() {
+            const name = prompt('Enter playlist name:');
+            if (name) {
+                playlists.push({ name, items: [] });
+                localStorage.setItem('playlists', JSON.stringify(playlists));
+                renderPlaylists();
+            }
+        }
+
+        // Save playlist
+        function savePlaylist() {
+            localStorage.setItem('playlist', JSON.stringify(mediaItems.map(item => ({
+                title: item.title,
+                size: item.size,
+                type: item.type
+            }))));
+            localStorage.setItem('currentMediaIndex', currentMediaIndex);
+        }
+
+        // Play media
+        function playMedia(index) {
+            spinner.style.display = 'block';
+            currentMediaIndex = index;
+            const item = mediaItems[index];
+            mediaPlayer.src = item.src;
+            mediaPlayer.load();
+            mediaPlayer.play().then(() => {
+                isPlaying = true;
+                spinner.style.display = 'none';
+                document.querySelector('.control-btn[onclick="togglePlay()"]').textContent = '⏸️';
+            }).catch(err => {
+                console.error('Playback failed:', err);
+                spinner.style.display = 'none';
+            });
+            visualizer.style.display = item.type === 'audio' ? 'flex' : 'none';
+            mediaPlayer.style.display = item.type === 'video' ? 'block' : 'none';
+            renderPlaylist();
+            renderSongsPlaylist();
+            if (item.type === 'audio') startVisualizer();
+            updateNowPlaying(item);
+            savePlaylist();
+        }
+
+        // Update now playing
+        function updateNowPlaying(item) {
+            nowPlaying.innerHTML = `
+                <div style="background: #fff; width: 100px; height: 100px; margin-right: 20px;"></div>
+                <div class="details">
+                    <h2>${item.title}</h2>
+                    <p>${item.type === 'audio' ? 'Audio' : 'Video'} - Unknown</p>
+                    <p>...</p>
+                </div>
+            `;
+        }
+
+        // Toggle play/pause
+        function togglePlay() {
+            if (isPlaying) {
+                mediaPlayer.pause();
+                document.querySelector('.control-btn[onclick="togglePlay()"]').textContent = '▶️';
+            } else {
+                mediaPlayer.play();
+                document.querySelector('.control-btn[onclick="togglePlay()"]').textContent = '⏸️';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // Toggle mute
+        function toggleMute() {
+            mediaPlayer.muted = !mediaPlayer.muted;
+            isMuted = !isMuted;
+            document.querySelector('.control-btn[onclick="toggleMute()"]').textContent = isMuted ? '🔇' : '🔊';
+        }
+
+        // Set playback speed
+        function setPlaybackSpeed(speed) {
+            mediaPlayer.playbackRate = parseFloat(speed);
+        }
+
+        // Seek
+        function seek(e) {
+            const rect = e.target.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            mediaPlayer.currentTime = pos * mediaPlayer.duration;
+        }
+
+        // Update progress bar
+        mediaPlayer.ontimeupdate = () => {
+            const percent = (mediaPlayer.currentTime / mediaPlayer.duration) * 100;
+            progress.style.width = `${percent}%`;
+        };
+
+        // Picture-in-Picture
+        async function enterPiP() {
+            if (mediaPlayer.style.display === 'block') {
+                try {
+                    await mediaPlayer.requestPictureInPicture();
+                } catch (error) {
+                    console.error('PiP failed:', error);
+                }
+            }
+        }
+
+        // Audio visualizer
+        function startVisualizer() {
+            if (!audioContext) {
+                audioContext = new AudioContext();
+                analyser = audioContext.createAnalyser();
+                const src = audioContext.createMediaElementSource(mediaPlayer);
+                src.connect(analyser);
+                analyser.connect(audioContext.destination);
+                analyser.fftSize = 256;
+            }
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+
+            visualizer.innerHTML = '';
+            for (let i = 0; i < bufferLength / 4; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'visualizer-bar';
+                visualizer.appendChild(bar);
+            }
+
+            function renderVisualizer() {
+                analyser.getByteFrequencyData(dataArray);
+                const bars = visualizer.children;
+                for (let i = 0; i < bars.length; i++) {
+                    const height = (dataArray[i] / 255) * 100;
+                    bars[i].style.height = `${height}px`;
+                }
+                requestAnimationFrame(renderVisualizer);
+            }
+            renderVisualizer();
+        }
+
+        // Equalizer
+        function applyEqualizer(preset) {
+            if (!audioContext) return;
+            if (!gainNodes) {
+                gainNodes = [
+                    audioContext.createBiquadFilter(),
+                    audioContext.createBiquadFilter(),
+                    audioContext.createBiquadFilter()
+                ];
+                gainNodes[0].type = 'lowshelf';
+                gainNodes[1].type = 'peaking';
+                gainNodes[2].type = 'highshelf';
+                gainNodes[0].frequency.setValueAtTime(200, audioContext.currentTime);
+                gainNodes[1].frequency.setValueAtTime(1000, audioContext.currentTime);
+                gainNodes[2].frequency.setValueAtTime(4000, audioContext.currentTime);
+                const src = audioContext.createMediaElementSource(mediaPlayer);
+                src.connect(gainNodes[0]);
+                gainNodes[0].connect(gainNodes[1]);
+                gainNodes[1].connect(gainNodes[2]);
+                gainNodes[2].connect(analyser || audioContext.destination);
+            }
+            const presets = {
+                flat: [0, 0, 0],
+                pop: [4, 2, -2],
+                rock: [4, -2, 4],
+                jazz: [2, 4, 2]
+            };
+            gainNodes.forEach((node, i) => node.gain.setValueAtTime(presets[preset][i], audioContext.currentTime));
+        }
+
+        function toggleEqualizer() {
+            equalizerPanel.classList.toggle('open');
+        }
+
+        // Add files
+        function addFiles(event) {
+            spinner.style.display = 'block';
+            const files = event.target.files;
+            Array.from(files).forEach(file => {
+                const type = file.type.startsWith('video') ? 'video' : 'audio';
+                mediaItems.push({
+                    type,
+                    src: URL.createObjectURL(file),
+                    title: file.name,
+                    size: file.size
+                });
+            });
+            savePlaylist();
+            renderPlaylist();
+            renderSongsPlaylist();
+            if (mediaItems.length === 1) playMedia(0);
+            spinner.style.display = 'none';
+        }
+
+        // Add files from folder
+        function addFolderFiles(event) {
+            spinner.style.display = 'block';
+            const files = event.target.files;
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('video') || file.type.startsWith('audio')) {
+                    const type = file.type.startsWith('video') ? 'video' : 'audio';
+                    mediaItems.push({
+                        type,
+                        src: URL.createObjectURL(file),
+                        title: file.name,
+                        size: file.size
+                    });
+                }
+            });
+            savePlaylist();
+            renderPlaylist();
+            renderSongsPlaylist();
+            if (mediaItems.length === 1) playMedia(0);
+            spinner.style.display = 'none';
+        }
+
+        // Handle drag-and-drop
+        function handleDrop(event) {
+            event.preventDefault();
+            spinner.style.display = 'block';
+            const files = event.dataTransfer.files;
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('video') || file.type.startsWith('audio')) {
+                    const type = file.type.startsWith('video') ? 'video' : 'audio';
+                    mediaItems.push({
+                        type,
+                        src: URL.createObjectURL(file),
+                        title: file.name,
+                        size: file.size
+                    });
+                }
+            });
+            savePlaylist();
+            renderPlaylist();
+            renderSongsPlaylist();
+            if (mediaItems.length === 1) playMedia(0);
+            spinner.style.display = 'none';
+            document.querySelector('.drop-zone').classList.remove('dragover');
+        }
+
+        // Remove media
+        function removeMedia(index) {
+            URL.revokeObjectURL(mediaItems[index].src);
+            mediaItems.splice(index, 1);
+            savePlaylist();
+            if (currentMediaIndex === index) {
+                mediaPlayer.pause();
+                isPlaying = false;
+                document.querySelector('.control-btn[onclick="togglePlay()"]').textContent = '▶️';
+                if (mediaItems.length > 0) {
+                    currentMediaIndex = Math.min(currentMediaIndex, mediaItems.length - 1);
+                    playMedia(currentMediaIndex);
+                } else {
+                    mediaPlayer.src = '';
+                    visualizer.style.display = 'none';
+                    mediaPlayer.style.display = 'none';
+                    nowPlaying.innerHTML = '';
+                }
+            }
+            renderPlaylist();
+            renderSongsPlaylist();
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'vibrant';
+            document.body.style.background = currentTheme === 'dark' ? 'linear-gradient(135deg, #4a5568, #2d3748)' : 'linear-gradient(135deg, #6b46c1, #d53f8c)';
+        }
+
+        // Download video (placeholder)
+        function downloadVideo() {
+            const url = document.getElementById('video-url').value || document.getElementById('video-url-downloads').value;
+            if (url) {
+                alert('Direct downloading is not supported in-browser. Please use the provided link to download the video using SaveItFrom.com.');
+            } else {
+                alert('Please enter a valid URL.');
+            }
+        }
+
+        // Show/hide controls
+        let controlsTimeout;
+        document.querySelector('.content').onmousemove = () => {
+            controls.classList.remove('hidden');
+            clearTimeout(controlsTimeout);
+            controlsTimeout = setTimeout(() => controls.classList.add('hidden'), 3000);
+        };
+
+        // Drag-and-drop styling
+        document.querySelector('.drop-zone').ondragover = () => {
+            document.querySelector('.drop-zone').classList.add('dragover');
+        };
+        document.querySelector('.drop-zone').ondragleave = () => {
+            document.querySelector('.drop-zone').classList.remove('dragover');
+        };
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                togglePlay();
+            } else if (e.code === 'KeyM') toggleMute();
+            else if (e.code === 'ArrowRight') mediaPlayer.currentTime += 5;
+            else if (e.code === 'ArrowLeft') mediaPlayer.currentTime -= 5;
+            else if (e.code === 'ArrowUp') mediaPlayer.volume = Math.min(1, mediaPlayer.volume + 0.1);
+            else if (e.code === 'ArrowDown') mediaPlayer.volume = Math.max(0, mediaPlayer.volume - 0.1);
+            else if (e.code === 'KeyN' && currentMediaIndex < mediaItems.length - 1) playMedia(currentMediaIndex + 1);
+            else if (e.code === 'KeyP' && currentMediaIndex > 0) playMedia(currentMediaIndex - 1);
+        });
+
+        // Trigger folder selection
+        document.querySelector('.drop-zone').onclick = () => {
+            document.getElementById('folder-input').click();
+        };
+
+        // Trigger file selection
+        document.getElementById('file-input').onclick = () => {
+            document.getElementById('file-input').click();
+        };
+
+        // Initialize
+        renderPlaylist();
+        renderPlaylists();
+        if (mediaItems.length > 0) playMedia(currentMediaIndex);
+    </script>
+</body>
+</html>
